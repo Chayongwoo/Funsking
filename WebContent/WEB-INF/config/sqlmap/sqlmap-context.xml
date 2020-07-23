@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+
+	<settings useStatementNamespaces="true" enhancementEnabled="true"
+		maxTransactions="5" maxRequests="32" maxSessions="10" />
+	<!-- Login쿼리 -->
+	<sqlMap resource="/com/spring/funsking/sqlMap/rsv/LoginSQL.xml" />
+	<!-- Chat쿼리 -->
+	<sqlMap resource="/com/spring/funsking/sqlMap/chat/ChatSQL.xml" />
+	<!-- AjaxBoard쿼리 -->
+	<sqlMap resource="/com/spring/funsking/sqlMap/ajaxBoard/AjaxBoardSQL.xml" />
+	<!-- 예약 선택시 쿼리들 -->
+	<sqlMap resource="/com/spring/funsking/sqlMap/rsv/TestSQL.xml" />
+	<!-- Join쿼리 -->
+	<sqlMap resource="/com/spring/funsking/sqlMap/rsv/JoinSQL.xml" />
+	<!-- 오디션신청쿼리 -->
+	<sqlMap resource="/com/spring/funsking/sqlMap/rsv/AuditionapplySQL.xml" />
+	<!-- notice 공지사항 -->
+	<sqlMap resource="/com/spring/funsking/sqlMap/rsv/NoticeSQL.xml" />
+	<!--  버스커 소개게시판 쿼리 -->
+	<sqlMap resource="/com/spring/funsking/sqlMap/rsv/Intr.xml" />
+	<!--  회원정보  쿼리 -->
+	<sqlMap resource="/com/spring/funsking/sqlMap/rsv/MypageSQL.xml" />
+</sqlMapConfig>
+ 

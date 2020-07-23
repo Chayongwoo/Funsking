@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="login">
+
+	<select id="getFuser"
+			parameterClass="java.util.HashMap"
+			resultClass="java.util.HashMap">
+		SELECT A.NUM, A.ID, A.PW, A.NAME, A.GRADE, B.BSKNUM 
+		FROM FUSER A LEFT OUTER JOIN BSK B ON A.NUM = B.NUM
+		WHERE A.ID = #user_id#
+		AND A.PW = #user_password#
+	</select>
+
+
+	<select id="getIdview1"
+			parameterClass="java.util.HashMap"
+			resultClass="java.util.HashMap">
+		SELECT NUM, ID, NAME
+		FROM FUSER
+		WHERE NAME = #name_view1#
+		AND EMAIL = #email_view1#
+	</select>
+	
+	<select id="getIdview2"
+			parameterClass="java.util.HashMap"
+			resultClass="java.util.HashMap">
+		SELECT NUM, ID, NAME
+		FROM FUSER
+		WHERE NAME = #name_view2#
+		AND PHONE = #phone_view2#
+	</select>
+	
+	
+	<select id="getPasswordview1"
+			parameterClass="java.util.HashMap"
+			resultClass="java.util.HashMap">
+		SELECT NUM, PW, NAME
+		FROM FUSER
+		WHERE ID = #id_view3#
+		AND NAME = #name_view3#
+		AND EMAIL = #email_view3#
+	</select>
+	
+	<select id="getPasswordview2"
+			parameterClass="java.util.HashMap"
+			resultClass="java.util.HashMap">
+		SELECT NUM, PW, NAME
+		FROM FUSER
+		WHERE ID = #id_view4#
+		AND NAME = #name_view4#
+		AND PHONE = #phone_view4#
+	</select>
+	
+</sqlMap>

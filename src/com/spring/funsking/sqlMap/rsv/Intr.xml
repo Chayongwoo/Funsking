@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Intr">
+
+	<!--전체 버스커 목록보기  -->
+	<select id="getBusker" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		 
+		   <!-- SELECT D.INTRNUM,D.DATE1,D.TNAME,D.GENRE, D.FILENUM, D.FILENAME, SUBSTR(FILENAME, INSTR(FILENAME, '.', -1) +1) AS FILE_EXT
+  			FROM(SELECT A.INTRNUM,A.DATE1,B.TNAME,B.GENRE, ROW_NUMBER() OVER(ORDER BY A.INTRNUM DESC) AS RNUM, C.FILENAME, C.FILENUM
+        			FROM INTR A
+        			INNER JOIN BSK B
+                			ON  A.BSKNUM = B.BSKNUM 
+        			LEFT OUTER JOIN INTRFILEUPLOAD C
+                			ON A.INTRNUM = C.INTRNUM
+             		WHERE 1=1
+             		 <isNotEmpty property="textGenre">
+             		 	AND B.GENRE = #textGenre#
+             		 </isNotEmpty>
+		             <isNotEmpty property="searchText">
+						AND A.INTRNUM LIKE '%' || #searchText# || '%'
+					</isNotEmpty>
+					) D
+			WHERE D.RNUM BETWEEN #start# AND #end#  -->
+			SELECT D.INTRNUM,D.DATE1,D.TNAME,D.GENRE, D.FILENUM, D.FILENAME, SUBSTR(FILENAME, INSTR(FILENAME, '.', -1) +1) AS FILE_EXT
+           FROM(SELECT A.INTRNUM,A.DATE1,B.TNAME,B.GENRE, ROW_NUMBER() OVER(ORDER BY A.INTRNUM DESC) AS RNUM, C.FILENAME, C.FILENUM, SUBSTR(FILENAME, INSTR(FILENAME, '.', -1) +1) AS FILE_EXT
+                 FROM INTR A
+                 INNER JOIN BSK B
+                         ON  A.BSKNUM = B.BSKNUM 
+                 LEFT OUTER JOIN INTRFILEUPLOAD C
+                         ON A.INTRNUM = C.INTRNUM
+                   WHERE SUBSTR(FILENAME, INSTR(FILENAME, '.', -1) +1) !='mp4'
+                   <isNotEmpty property="textGenre">
+                       AND B.GENRE = #textGenre#
+                    </isNotEmpty>
+                   <isNotEmpty property="searchText">
+                  AND A.INTRNUM LIKE '%' || #searchText# || '%'
+               </isNotEmpty>)D
+                WHERE  D.RNUM BETWEEN #start# AND #end#
+	</select>
+	 
+	
+	
+	
+	<select id="getBuskerCount" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT COUNT(*) AS CNT
+		FROM INTR
+		WHERE 1 = 1
+		<isNotEmpty property="searchText">
+			AND INTRNUM LIKE '%' || #searchText# || '%'
+		</isNotEmpty>
+		
+	</select>
+	  <!-- <select id="getBusker2" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT A.INTRNUM, B.TNAME, B.GENRE, A.COMM, A.INTR, A.DATE1, C.FILENAME,
+      			SUBSTR(C.FILENAME, INSTR(C.FILENAME, '.', -1) +1) AS FILE_EXT
+        FROM INTR A 
+	        INNER JOIN BSK B
+	                ON A.BSKNUM = B.BSKNUM 
+	        LEFT OUTER JOIN INTRFILEUPLOAD C
+	                ON A.INTRNUM = C.INTRNUM
+		WHERE A.INTRNUM = #intrNum#
+	 </select>  -->  
+	 
+	 <!-- 버스커 상세보기  -->
+	  <select id="getBusker2" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT A.INTRNUM, B.TNAME, B.GENRE, A.COMM, A.INTR, A.DATE1, B.BSKNUM
+		 FROM INTR A          
+		 INNER JOIN BSK B                  
+		         ON A.BSKNUM = B.BSKNUM
+		 WHERE A.INTRNUM = #intrNum#
+	</select>
+	
+	<!-- 버스커 상세보기 파일  -->
+	<select id="getBusker3" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT INTRNUM, FILENAME, SUBSTR(FILENAME, INSTR(FILENAME, '.', -1) +1) AS FILE_EXT ,FILENUM
+		  FROM INTRFILEUPLOAD
+		  WHERE INTRNUM = #intrNum# 
+	</select>  
+	
+	<!-- 시퀀스 -->
+	<select id="buskerSeq" parameterClass="java.util.HashMap" resultClass="INTEGER">
+		SELECT INTRNUM.NEXTVAL FROM DUAL
+	</select> 
+	
+	<!-- 인서트 -->
+	<insert id="insertBusker" parameterClass="java.util.HashMap">
+		INSERT INTO INTR(INTRNUM, BSKNUM, COMM, INTR, DATE1,BOARDCODE)
+      			  VALUES(INTRNUM.NEXTVAL, #textBskNum#, #textComm#, #textIntr#, TO_DATE(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'), '2')
+	<!-- 인서트 -->
+	</insert>
+	
+ 	<insert id="insertBusker2" parameterClass="java.util.HashMap">
+		INSERT INTO INTRFILEUPLOAD(FILENUM, INTRNUM, FILENAME)
+	     			    VALUES(INTRFILENUM.NEXTVAL,INTRNUM.CURRVAL, #textFile#)
+    </insert> 
+    
+    <insert id="insertBusker3" parameterClass="java.util.HashMap">
+    	INSERT INTO INTRFILEUPLOAD(FILENUM, INTRNUM, FILENAME)
+	     			    VALUES(INTRFILENUM.NEXTVAL,INTRNUM.CURRVAL, #textFile1#)
+    </insert>
+    
+    <!-- 오디션 회차 가져오기  -->
+    <select id="audition" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT  AUDCODE, ATTR
+  		  FROM AUDCODE
+    </select>
+    
+    <!--회차별 버스커 가져오기  -->
+    <select id="audition2" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	<!-- SELECT TNAME, AUDCODE
+		  FROM AUDAPP
+		 WHERE GRADE = 2 AND AUDCODE = #audCode# -->
+		  SELECT B.TNAME, AUDCODE, B.BSKNUM
+			FROM AUDAPP A 
+   				INNER JOIN BSK B
+           				ON A.BSKNUM = B.BSKNUM
+     	   WHERE A.GRADE = 2 AND AUDCODE = #audCode#
+    </select>
+    
+    <!-- 버스커 소개 파일 삭제 -->
+    <delete id="deleteBusker" parameterClass="java.util.HashMap">
+    	DELETE FROM INTRFILEUPLOAD
+			  WHERE INTRNUM = #intrNum#
+    </delete>
+    
+    <!-- 버스커 소개 삭제 -->
+    <delete id="deleteBusker2" parameterClass="java.util.HashMap">
+    	DELETE FROM INTR
+    		   WHERE INTRNUM = #intrNum#
+    </delete>
+    
+    <!-- 버스커 장르 가져오기 -->
+    <select id="GenreBusker" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT GENRE, ATTR
+		  FROM GENRECODE
+    </select>
+    
+    <!-- 버스커 소개 수정   -->
+    <update id="updateajax" parameterClass="java.util.HashMap">
+		UPDATE INTR SET COMM = #textComm#,
+						INTR = #textIntr#
+		WHERE INTRNUM = #intrNum#
+	</update>
+	
+	<!-- 버스커 소개 수정 파일  -->
+	<update id="updateajax2" parameterClass="java.util.HashMap">
+		UPDATE INTRFILEUPLOAD SET FILENAME = #textFile#
+		WHERE FILENUM = #fileNum#
+	</update>
+     
+    <update id="updateajax3" parameterClass="java.util.HashMap">
+    UPDATE INTRFILEUPLOAD SET FILENAME = #textFile1#
+		WHERE FILENUM = #fileNum1#
+    </update>
+      
+    <!-- 사진 게시판 리스트가져오기 -->
+    <select id="photoajax" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT C.CONCERTNUM, C.NUM, C.FILENAME, C.DATE1, C.TITLE
+		 FROM(SELECT ROW_NUMBER() OVER(ORDER BY A.CONCERTNUM DESC) AS RNUM, A.CONCERTNUM, A.DATE1, A.NUM, A.TITLE, B.FILENAME
+		       FROM CONCERT A
+		       LEFT OUTER JOIN CONCERTFILEUPLOAD B
+		                    ON A.CONCERTNUM = B.CONCERTNUM
+		       WHERE 1=1
+		       	<isNotEmpty property="searchText">
+					AND A.CONCERTNUM LIKE '%' || #searchText# || '%'
+				</isNotEmpty><!-- #: 파라미터를 확인할때 씀  -->
+		       ) C
+	      WHERE C.RNUM BETWEEN #start# AND #end#
+    </select>
+    
+    <!--사진 페이징, 찾기  -->
+    <select id="getphotoCount" parameterClass="java.util.HashMap" resultClass="Integer">
+		SELECT COUNT(*) AS CNT
+		FROM CONCERT
+		WHERE 1 = 1
+		<isNotEmpty property="searchText">
+			AND CONCERTNUM LIKE '%' || #searchText# || '%'
+		</isNotEmpty>
+		
+	</select>
+    
+    <!--사진 상세보기  -->
+    <select id="buskerphoto2" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    SELECT CONCERTNUM, NUM, RSVNUM, COMM, DATE1, TITLE
+	  FROM CONCERT
+	 WHERE CONCERTNUM = #concertNum#
+    </select>
+    
+    <!-- 사진 게시판 파일 가져오기  -->
+    <select id="buskerphoto3" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT CONCERTNUM, FILENAME, SUBSTR(FILENAME, INSTR(FILENAME, '.', -1) +1) AS FILE_EXT 
+		  FROM CONCERTFILEUPLOAD
+		  WHERE CONCERTNUM = #concertNum#
+    </select>
+    
+    <select id="photoseq" parameterClass="java.util.HashMap" resultClass="Integer">
+    	SELECT CONCERTNUM.NEXTVAL FROM DUAL
+    </select>
+    
+    <!-- 사진 정보 인서트 -->
+    <insert id="insertphoto" parameterClass="java.util.HashMap">
+		INSERT INTO CONCERT(CONCERTNUM, TITLE, COMM, DATE1,  BOARDCODE)
+      			  VALUES(#seq#, #textTitle#, #textComm#,  TO_DATE(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'), '7')
+	</insert>
+	
+	<!-- 사진 파일 인서트 -->
+ 	<insert id="insertphoto2" parameterClass="java.util.HashMap">
+		INSERT INTO CONCERTFILEUPLOAD(FILENUM, CONCERTNUM, FILENAME)
+	    VALUES(CONCERTFILE.NEXTVAL,#seq#, #textFile#)
+    </insert>
+    
+    <!-- 예약된 장소 ajax가져오기 -->
+    <select id ="rsvplaceAjax" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	SELECT A.PCODE, A.ATTR, B.SCHECODE,C.RSVCODE, B.CONCERTSCHE
+		  FROM RSVPLACE A
+		  LEFT OUTER JOIN RSVSCHE B
+            		   ON  A.PCODE=B.PCODE
+      		   INNER JOIN RSVBSK C
+             		   ON  B.SCHECODE = C.SCHECODE
+      	 WHERE RSVCODE = 3
+    </select>
+</sqlMap>
